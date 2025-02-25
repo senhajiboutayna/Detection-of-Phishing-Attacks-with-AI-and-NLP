@@ -22,7 +22,7 @@ def train_neural_network(train_X, test_X, train_y, test_y, learning_rates=[0.1, 
     nn_auc_train, nn_auc_test = [], []
 
     for rate in learning_rates:
-        clf_nn = MLPClassifier(learning_rate_init=rate, random_state=1, max_iter=500)
+        clf_nn = MLPClassifier(hidden_layer_sizes=(50,), learning_rate_init=rate, random_state=1, max_iter=100, verbose=1, warm_start=True)
 
         # Mesure du temps d'entraînement
         t0 = time.perf_counter()
