@@ -19,15 +19,6 @@ Detection-of-Phishing-Attacks-with-AI-and-NLP/
 │__ README.md                  # Documentation du projet
 ```
 
-## Installation
-1. Cloner ce dépôt :
-   ```bash
-   git clone https://github.com/senhajiboutayna/Detection-of-Phishing-Attacks-with-AI-and-NLP.git
-   ```
-2. Installer les dépendances :
-   ```bash
-   pip install -r requirements.txt
-   ```
 
 ## Utilisation
 ### 1. Prétraitement des données
