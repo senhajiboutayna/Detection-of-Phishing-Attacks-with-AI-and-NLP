@@ -7,7 +7,6 @@ Ce projet implémente plusieurs modèles d'apprentissage automatique pour détec
 ```
 Detection-of-Phishing-Attacks-with-AI-and-NLP/
 │── data/                      # Dossier contenant les jeux de données
-│── results/                   # Dossier contenant les figures et les modèles entraînés
 │── preprocessing.py           # Prétraitement des données
 │── utils.py                   # Fonctions utilitaires
 │── training_decision_tree.py  # Entraînement du modèle Decision Tree

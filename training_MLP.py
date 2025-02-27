@@ -18,11 +18,12 @@ def train_neural_network(train_X, test_X, train_y, test_y, learning_rates=[0.1, 
     """
     print("Training Neural Network...")
 
+    learning_rates = [0.1, 1, 2, 3]
     training_time, prediction_time = [], []
     nn_auc_train, nn_auc_test = [], []
 
     for rate in learning_rates:
-        clf_nn = MLPClassifier(hidden_layer_sizes=(50,), learning_rate_init=rate, random_state=1, max_iter=100, verbose=1, warm_start=True)
+        clf_nn = MLPClassifier(learning_rate_init=rate, random_state=1, verbose=1)
 
         # Mesure du temps d'entraînement
         t0 = time.perf_counter()
