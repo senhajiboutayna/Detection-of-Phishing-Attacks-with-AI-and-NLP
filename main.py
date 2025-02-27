@@ -2,7 +2,6 @@ from preprocessing import load_and_preprocess_data
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from training_decision_tree import train_decision_tree
 from training_adaboost import train_adaboost
-from training_MLP import train_neural_network
 from training_KNN import train_knn
 from training_SVM import train_svm
 
@@ -19,7 +18,7 @@ def train_and_evaluate(models, X_train, X_test, y_train, y_test):
         print(f"\n--- Training {name} ---")
         
         try:
-            model = train_func(X_train, y_train)  # Entraînement du modèle
+            model = train_func(X_train, y_train, X_test, y_test)  # Entraînement du modèle
             y_pred = model.predict(X_test)  # Prédiction sur le jeu de test
 
             accuracy = accuracy_score(y_test, y_pred)
@@ -54,7 +53,6 @@ def train_and_evaluate(models, X_train, X_test, y_train, y_test):
 models = {
     "Decision Tree": train_decision_tree,
     "AdaBoost": train_adaboost,
-    "MLP": train_neural_network,
     "KNN": train_knn,
     "SVM": train_svm
 }
