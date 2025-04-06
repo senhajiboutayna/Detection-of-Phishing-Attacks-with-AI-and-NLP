@@ -9,11 +9,6 @@ Detection-of-Phishing-Attacks-with-AI-and-NLP/
 │── data/                      # Dossier contenant les jeux de données
 │── preprocessing.py           # Prétraitement des données
 │── utils.py                   # Fonctions utilitaires
-│── training_decision_tree.py  # Entraînement du modèle Decision Tree
-│── training_adaboost.py       # Entraînement du modèle AdaBoost
-│── training_MLP.py            # Entraînement du modèle MLP (Neural Network)
-│── training_KNN.py            # Entraînement du modèle KNN
-│── training_SVM.py            # Entraînement du modèle SVM
 │── main.py                    # Comparaison des modèles et sélection du meilleur
 │__ README.md                  # Documentation du projet
 ```
