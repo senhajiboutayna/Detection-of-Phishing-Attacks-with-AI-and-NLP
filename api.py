@@ -1,7 +1,6 @@
 import base64
 import os
 import re
-import mimetypes
 from bs4 import BeautifulSoup
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
