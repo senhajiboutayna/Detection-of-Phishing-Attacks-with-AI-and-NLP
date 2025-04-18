@@ -181,3 +181,4 @@ results_df = pd.DataFrame({
 })
 
 print(results_df)
+print(f'Le modèle le plus performant : {results_df["Model"][results_df["Accuracy"].idxmax()]}')
