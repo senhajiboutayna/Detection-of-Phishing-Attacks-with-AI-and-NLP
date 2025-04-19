@@ -1,12 +1,11 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import tensorflow as tf
-from tensorflow import keras
 import xgboost as xgb
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, roc_auc_score, confusion_matrix, roc_curve
 from sklearn.preprocessing import MinMaxScaler
+import joblib
 
 
 file_path = 'data/cleaned_phishing_data.csv'
@@ -69,6 +68,8 @@ plt.title('Courbe ROC - XGBoost')
 plt.legend(loc="lower right")
 plt.show()
 
+joblib.dump(xgb_model, 'models/xgboost_model.pkl')
+
 # ------------------------------ SVM Model ------------------------------
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, roc_auc_score, confusion_matrix, roc_curve
@@ -123,6 +124,8 @@ plt.title('Courbe ROC - SVM')
 plt.legend(loc="lower right")
 plt.show()
 
+joblib.dump(svm_model, 'models/svm_model.pkl')
+
 # ------------------------------RandomForest Model ------------------------------
 
 from sklearn.ensemble import RandomForestClassifier
@@ -168,6 +171,11 @@ plt.ylabel('Taux de vrais positifs')
 plt.title('Courbe ROC - Random Forest')
 plt.legend(loc="lower right")
 plt.show()
+
+joblib.dump(rf_model, 'models/random_forest_model.pkl')
+
+
+# ------------------------------ Comparaison ------------------------------
 
 models = ['XGBoost', 'SVM', 'Random Forest']
 accuracies = [accuracy_xgb, accuracy_svm, accuracy_rf]

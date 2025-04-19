@@ -7,6 +7,7 @@ from nltk.stem import WordNetLemmatizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.sparse import hstack
+import joblib
 
 ### Nettoyage des données
 
@@ -176,5 +177,8 @@ y = df['label'].to_numpy()
 
 #Sauvegarde du Dataset
 final_df = df[numeric_features + ['label']]
-final_df.to_csv('data/cleaned_phishing_data.csv', index=False)
+#final_df.to_csv('data/cleaned_phishing_data.csv', index=False)
 print(final_df.head())
+
+joblib.dump(le_sender, 'models/le_sender.pkl')
+joblib.dump(le_receiver, 'models/le_receiver.pkl')

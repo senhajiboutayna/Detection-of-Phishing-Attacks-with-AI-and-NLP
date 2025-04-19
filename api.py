@@ -1,11 +1,13 @@
 import base64
 import os
 import re
+import pandas as pd
 from bs4 import BeautifulSoup
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+import joblib  # pour charger le modèle sauvegardé
 
 # Scope lecture seule des emails
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
@@ -54,6 +56,54 @@ def get_attachments(service, msg):
             })
     return attachments
 
+le_sender = joblib.load('models/le_sender.pkl')
+le_receiver = joblib.load('models/le_receiver.pkl')
+def process_email(subject, body, sender, receiver_domain="example.com"):
+    # Extraire le domaine de l'expéditeur
+    sender_domain = sender.split('@')[-1].strip('> ') if '@' in sender else "unknown"
+    
+    # Encoder les domaines (avec gestion des nouvelles valeurs)
+    try:
+        sender_domain_encoded = le_sender.transform([sender_domain])[0]
+    except ValueError:
+        sender_domain_encoded = -1  # Valeur pour "inconnu"
+    
+    try:
+        receiver_domain_encoded = le_receiver.transform([receiver_domain])[0]
+    except ValueError:
+        receiver_domain_encoded = -1
+
+    features = {
+        'sender_name_length': len(sender.split('@')[0]),
+        'special_char_density': len(re.findall(r'[!@#$%^&*(),.?":{}|<>]', body)) / max(len(body), 1),
+        'sender_domain_encoded': sender_domain_encoded,  # Ajouté
+        'num_urls': len(extract_urls(body)),
+        'suspicious_urls': 1 if any(domain in url for url in extract_urls(body) for domain in ['bit.ly', 'tinyurl.com', 'goo.gl']) else 0,
+        'phishing_words': sum(1 for word in ['urgent', 'gratuit', 'prix', 'compte', 'confidentiel'] if word in (subject + ' ' + body).lower()),
+        'receiver_domain_encoded': receiver_domain_encoded,  # Ajouté
+    }
+
+    return features
+
+def predict_phishing(features):
+    # Charger le modèle entraîné (XGBoost par exemple)
+    model = joblib.load('models/xgboost_model.pkl')  # Assurez-vous d'avoir sauvegardé le modèle
+    # Convertir les features en DataFrame
+    df = pd.DataFrame([features], columns=[
+        'sender_name_length',
+        'special_char_density',
+        'sender_domain_encoded',
+        'num_urls',
+        'suspicious_urls',
+        'phishing_words',
+        'receiver_domain_encoded'
+    ])
+    # Prédiction
+    prediction = model.predict(df)
+
+    return prediction[0]
+
+
 def fetch_emails():
     service = authenticate_gmail()
     results = service.users().messages().list(userId='me', maxResults=10).execute()
@@ -76,12 +126,17 @@ def fetch_emails():
         urls = extract_urls(body)
         attachments = get_attachments(service, msg)
 
+        # Prétraiter et prédire
+        features = process_email(subject, body, sender)
+        is_phishing = predict_phishing(features)
+
         print(f"📩 Email {i}")
         print(f"From: {sender}")
         print(f"Subject: {subject}")
         print(f"Body:\n{body[:300]}...")  # Affiche un extrait
         print(f"URLs found: {urls}")
         print(f"Attachments: {[att['filename'] for att in attachments]}\n")
+        print(f"Prediction: {'Phishing' if is_phishing else 'Safe'}\n")
         print("-" * 80)
 
 if __name__ == '__main__':
