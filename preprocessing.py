@@ -176,7 +176,7 @@ X = hstack([subject_vecs, body_vecs, numeric_matrix])
 y = df['label'].to_numpy()
 
 #Sauvegarde du Dataset
-final_df = df[numeric_features + ['subject_clean', 'body_clean', 'label']]
+final_df = df[numeric_features + ['day_of_week','subject_clean', 'body_clean', 'label']]
 final_df.to_csv('data/cleaned_phishing_data.csv', index=False)
 print(final_df.head())
 
