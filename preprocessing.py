@@ -138,7 +138,8 @@ phishing_keywords = [
 
 def count_phishing_words(text, keywords):
     text = text.lower()
-    return sum(1 for word in keywords if word in text)
+    return sum(text.count(word) for word in keywords)
+
 
 df['phishing_words'] = df['subject'].fillna('') + ' ' + df['body'].fillna('')
 df['phishing_words'] = df['phishing_words'].apply(lambda x: count_phishing_words(x, phishing_keywords))
