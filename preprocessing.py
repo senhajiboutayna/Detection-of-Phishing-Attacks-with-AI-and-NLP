@@ -7,6 +7,7 @@ from nltk.stem import WordNetLemmatizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.sparse import hstack
+from scipy.sparse import csr_matrix
 import joblib
 
 ### Nettoyage des données
@@ -146,8 +147,8 @@ df['sender_domain_encoded'] = le_sender.fit_transform(df['sender_domain'].astype
 df['receiver_domain_encoded'] = le_receiver.fit_transform(df['receiver_domain'].astype(str))
 
 # Vectoriser subject_clean et body_clean
-tfidf_subject = TfidfVectorizer(max_features=1000)
-tfidf_body = TfidfVectorizer(max_features=1000)
+tfidf_subject = TfidfVectorizer(max_features=50)
+tfidf_body = TfidfVectorizer(max_features=500)
 
 subject_vecs = tfidf_subject.fit_transform(df['subject_clean'])
 body_vecs = tfidf_body.fit_transform(df['body_clean'])
@@ -155,8 +156,7 @@ body_vecs = tfidf_body.fit_transform(df['body_clean'])
 
 ### Assemblage des Features
 
-# Liste des colonnes numériques utiles
-numeric_features = [
+numeric_features = df[[
     'num_urls', 
     'suspicious_urls', 
     'sender_name_length', 
@@ -164,21 +164,24 @@ numeric_features = [
     'special_char_density',
     'sender_domain_encoded', 
     'receiver_domain_encoded'
-]
+]]  
 
-# Convertir les features numériques en matrice (2D)
-numeric_matrix = df[numeric_features].to_numpy()
+numeric_sparse = csr_matrix(numeric_features.values)
 
-# Combiner toutes les features (text subject + text body + numériques)
-X = hstack([subject_vecs, body_vecs, numeric_matrix])
+X_combined = hstack([numeric_sparse, subject_vecs, body_vecs])
 
-# Extraire les labels
-y = df['label'].to_numpy()
+final_df = pd.DataFrame.sparse.from_spmatrix(
+    X_combined,
+    columns=(
+        numeric_features.columns.tolist() + 
+        [f'subject_tfidf_{i}' for i in range(subject_vecs.shape[1])] + 
+        [f'body_tfidf_{i}' for i in range(body_vecs.shape[1])]
+    )
+)
 
-#Sauvegarde du Dataset
-final_df = df[numeric_features + ['day_of_week','subject_clean', 'body_clean', 'label']]
+final_df['label'] = df['label'].values
+
 final_df.to_csv('data/cleaned_phishing_data.csv', index=False)
-print(final_df.head())
 
 joblib.dump(le_sender, 'models/le_sender.pkl')
 joblib.dump(le_receiver, 'models/le_receiver.pkl')
