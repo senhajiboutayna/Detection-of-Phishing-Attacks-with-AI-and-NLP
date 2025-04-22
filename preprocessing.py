@@ -154,34 +154,4 @@ subject_vecs = tfidf_subject.fit_transform(df['subject_clean'])
 body_vecs = tfidf_body.fit_transform(df['body_clean'])
 
 
-### Assemblage des Features
 
-numeric_features = df[[
-    'num_urls', 
-    'suspicious_urls', 
-    'sender_name_length', 
-    'phishing_words', 
-    'special_char_density',
-    'sender_domain_encoded', 
-    'receiver_domain_encoded'
-]]  
-
-numeric_sparse = csr_matrix(numeric_features.values)
-
-X_combined = hstack([numeric_sparse, subject_vecs, body_vecs])
-
-final_df = pd.DataFrame.sparse.from_spmatrix(
-    X_combined,
-    columns=(
-        numeric_features.columns.tolist() + 
-        [f'subject_tfidf_{i}' for i in range(subject_vecs.shape[1])] + 
-        [f'body_tfidf_{i}' for i in range(body_vecs.shape[1])]
-    )
-)
-
-final_df['label'] = df['label'].values
-
-final_df.to_csv('data/cleaned_phishing_data.csv', index=False)
-
-joblib.dump(le_sender, 'models/le_sender.pkl')
-joblib.dump(le_receiver, 'models/le_receiver.pkl')
