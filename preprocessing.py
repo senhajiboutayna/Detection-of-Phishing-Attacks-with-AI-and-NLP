@@ -7,6 +7,7 @@ from nltk.stem import WordNetLemmatizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.sparse import hstack
+from scipy.sparse import csr_matrix
 import joblib
 
 ### Nettoyage des données
@@ -88,53 +89,7 @@ df = df.drop(columns=['urls_list'])  # Supprimer la colonne temporaire
 df['sender_name_length'] = df['sender'].str.split('@').str[0].str.len()
 
 #Définir une liste de mots suspects et compter leur présence dans subject et body.
-phishing_keywords = [
-    ##### 1. Urgence & Menaces #####
-    'urgent', 'immédiat', 'délai', 'dernière chance', 'expir', 'suspendu', 
-    'bloqué', 'hacké', 'piraté', 'séquestr', 'confisqu', 'résili', 'litige',
-    'restrict', 'violation', 'avertissement', 'pénalité', 'désactiv',
-    
-    ##### 2. Sécurité & Comptes #####
-    'vérif', 'authentif', 'sécur', 'connexion', 'identif', 'mot de passe', 
-    'credentials', '2FA', 'MFA', 'OTP', 'code', 'validation', 'protect',
-    'lock', 'unlock', 'reactiv', 'recovery', 'reset',
-    
-    ##### 3. Argent & Paiements #####
-    'facture',  '€' , '$', 'paiement', 'rembours', 'virement', 'solde', 'impayé', 
-    'prélèvement', 'carte bancaire', 'IBAN', 'SWIFT', 'crypto', 'bitcoin',
-    'transaction', 'fraude', 'remise', 'réduct', '100', '99', '1000' , 'million', 'prix',
-    
-    ##### 4. Récompenses & Offres #####
-    'gratuit', 'cadeau', 'lotterie', 'prime', 'bonus', 'exclusif', 
-    'limitée', 'spécial', 'promo', 'rabais', 'coupon', 'gagnant', 
-    'million', 'euro', 'dollar', 'cash',
-    
-    ##### 5. Faux Problèmes Techniques #####
-    'erreur', 'bug', 'corrompu', 'mise à jour', 'maintenance', 'crash',
-    'panne', 'sauvegard', 'restaur', 'version', 'patch', 'correctif',
-    
-    ##### 6. Social Engineering #####
-    'cliquez', 'télécharg', 'ouvrir', 'confirmer', 'mettre à jour',
-    'connectez', 'vérifiez', 'répondre', 'contactez', 'support', 'aide',
-    'assistance', 'service client',
-    
-    ##### 7. Typosquatting & Caractères Spéciaux #####
-    r'[àéèçù]',  # Caractères accentués suspects
-    r'\d+€',     # Montants monétaires
-    r'[\!\?\*]{2,}',  # Ponctuations multiples
-    r'\b(?:paypal|amazon|google|microsoft)\W+\w+',  # Marques + caractères spéciaux
-    
-    ##### 8. Patterns Multilingues #####
-    # Anglais
-    'verify', 'account', 'password', 'login', 'security', 'limited',
-    'offer', 'click', 'banking', 'alert',
-    
-    # Espagnol
-    'urgente', 'cuenta', 'contraseña', 'banco', 'seguridad',
-    
-    # Allemand
-    'dringend', 'konto', 'passwort', 'überprüfen'
-]
+phishing_keywords = ['urgent', 'gratuit', 'prix', 'compte', 'confidentiel']
 
 def count_phishing_words(text, keywords):
     text = text.lower()
@@ -193,53 +148,11 @@ df['sender_domain_encoded'] = le_sender.fit_transform(df['sender_domain'].astype
 df['receiver_domain_encoded'] = le_receiver.fit_transform(df['receiver_domain'].astype(str))
 
 # Vectoriser subject_clean et body_clean
-tfidf_subject = TfidfVectorizer(max_features=1000)
-tfidf_body = TfidfVectorizer(max_features=1000)
+tfidf_subject = TfidfVectorizer(max_features=50)
+tfidf_body = TfidfVectorizer(max_features=500)
 
 subject_vecs = tfidf_subject.fit_transform(df['subject_clean'])
 body_vecs = tfidf_body.fit_transform(df['body_clean'])
 
-joblib.dump(tfidf_subject, 'models/tfidf_subject.pkl')
-joblib.dump(tfidf_body, 'models/tfidf_body.pkl')
 
 
-### Assemblage des Features
-
-# Liste des colonnes numériques utiles
-numeric_features = [
-    'num_urls', 
-    'suspicious_urls', 
-    'sender_name_length', 
-    'phishing_words', 
-    'special_char_density',
-    'sender_domain_encoded', 
-    'receiver_domain_encoded'
-]
-
-# Convertir les features numériques en matrice (2D)
-numeric_matrix = df[numeric_features].to_numpy()
-
-
-
-
-numeric_matrix = df[numeric_features].to_numpy()
-
-
-# Combiner toutes les features (text subject + text body + numériques)
-X = hstack([subject_vecs, body_vecs, numeric_matrix])
-
-# Extraire les labels
-y = df['label'].to_numpy()
-
-#Sauvegarde du Dataset
-final_df = df[numeric_features + ['day_of_week','tfidf_subject', 'tfidf_body', 'label']]
-final_df.to_csv('data/cleaned_phishing_data.csv', index=False)
-print(final_df.head())
-
-joblib.dump(le_sender, 'models/le_sender.pkl')
-joblib.dump(le_receiver, 'models/le_receiver.pkl')
-
-joblib.dump(tfidf_subject, 'models/tfidf_subject.pkl')
-joblib.dump(tfidf_body, 'models/tfidf_body.pkl')
-joblib.dump(X, 'models/features_X.pkl')
-joblib.dump(y, 'models/labels_y.pkl')
