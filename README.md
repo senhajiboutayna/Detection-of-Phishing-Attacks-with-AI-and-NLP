@@ -41,11 +41,6 @@ python api.py
 
 ## Résultats
 Les performances des modèles sont affichées sous forme de tableau dans la sortie console, avec un résumé indiquant le modèle le plus performant.
-| Modèle         | Accuracy | ROC AUC | 
-|----------------|----------|---------|
-| XGBoost        | 0.985901 | 0.997536|
-| SVM            | 0.828353 | 0.716678|
-| Random Forest  | 0.975294 | 0.986656| 
 
 Les visualisations incluent :
 - **Matrices de confusion pour chaque modèle**

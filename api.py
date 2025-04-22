@@ -7,7 +7,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-import joblib  # pour charger le modèle sauvegardé
+import joblib 
 
 # Scope lecture seule des emails
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
@@ -76,25 +76,21 @@ def process_email(subject, body, sender, receiver_domain="example.com"):
     features = {
         'sender_name_length': len(sender.split('@')[0]),
         'special_char_density': len(re.findall(r'[!@#$%^&*(),.?":{}|<>]', body)) / max(len(body), 1),
-        'sender_domain_encoded': sender_domain_encoded,  # Ajouté
+        'sender_domain_encoded': sender_domain_encoded,  
         'num_urls': len(extract_urls(body)),
         'suspicious_urls': 1 if any(domain in url for url in extract_urls(body) for domain in ['bit.ly', 'tinyurl.com', 'goo.gl']) else 0,
         'phishing_words': sum(1 for word in ['urgent', 'gratuit', 'prix', 'compte', 'confidentiel'] if word in (subject + ' ' + body).lower()),
-        'receiver_domain_encoded': receiver_domain_encoded,  # Ajouté
+        'receiver_domain_encoded': receiver_domain_encoded, 
     }
 
     return features
 
 def predict_phishing(features):
-    # Charger le modèle entraîné (XGBoost par exemple)
-    model = joblib.load('models/xgboost_model.pkl')  # Assurez-vous d'avoir sauvegardé le modèle
+    # Charger le modèle entraîné 
+    model = joblib.load('models/meta_model.pkl')  # Assurez-vous d'avoir sauvegardé le modèle
     # Convertir les features en DataFrame
     df = pd.DataFrame([features], columns=[
-        'sender_name_length',
-        'special_char_density',
         'sender_domain_encoded',
-        'num_urls',
-        'suspicious_urls',
         'phishing_words',
         'receiver_domain_encoded'
     ])
@@ -135,7 +131,6 @@ def fetch_emails():
         print(f"Subject: {subject}")
         print(f"Body:\n{body[:300]}...")  # Affiche un extrait
         print(f"URLs found: {urls}")
-        print(f"Attachments: {[att['filename'] for att in attachments]}\n")
         print(f"Prediction: {'Phishing' if is_phishing else 'Safe'}\n")
         print("-" * 80)
 
