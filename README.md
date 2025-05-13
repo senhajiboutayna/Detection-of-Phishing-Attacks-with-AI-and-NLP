@@ -11,7 +11,7 @@ Detection-of-Phishing-Attacks-with-AI-and-NLP/
 │   └── cleaned_phishing_data.csv  # Dataset nettoyé et prétraité
 │── models/                    # Dossier contenant les différents modles entraînés
 ├── api.py                     # Script pour interagir avec l'API Gmail
-├── interface.py               # Script pour l'interface de l'application
+├── app.py               # Script pour l'interface de l'application
 ├── models.py                  # Implémentation des modèles ML
 │── preprocessing.py           # Prétraitement des données
 │__ README.md                  # Documentation du projet
