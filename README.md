@@ -9,12 +9,14 @@ Detection-of-Phishing-Attacks-with-AI-and-NLP/
 │── data/                      # Dossier contenant les jeux de données
 │   ├── CEAS_08.csv                # Dataset original
 │   └── cleaned_phishing_data.csv  # Dataset nettoyé et prétraité
-│── models/                    # Dossier contenant les différents modles entraînés
+│── models/                    # Dossier contenant les différents modèles entraînés
+│── Presentation.pdf
+│── README.md                  # Documentation du projet
+│── Rapport.pdf
 ├── api.py                     # Script pour interagir avec l'API Gmail
-├── app.py               # Script pour l'interface de l'application
+├── app.py                     # Script pour l'interface de l'application
 ├── models.py                  # Implémentation des modèles ML
-│── preprocessing.py           # Prétraitement des données
-│__ README.md                  # Documentation du projet
+│__ preprocessing.py           # Prétraitement des données
 ```
 
 
